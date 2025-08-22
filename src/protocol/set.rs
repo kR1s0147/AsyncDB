@@ -1,3 +1,5 @@
+use std::fmt::Error;
+
 use super::*;
 use bytes::Buf;
 
@@ -58,9 +60,9 @@ impl SET {
         if let Some(_) = self.ttl { 4 } else { 0 } // TTL size, if present
     }
 
-    pub fn write(&self) -> BytesMut {
+    pub fn write(&self, src: &mut BytesMut) -> Result<(), Error> {
         let size = self.size();
-        let mut bytes = BytesMut::with_capacity(size);
+        let mut bytes = src;
         bytes.put_u8(0); // Command type for SET
         bytes.put_u16(size as u16 - 3); // Length of the rest of
         bytes.put_u16(self.key_length);
@@ -70,6 +72,6 @@ impl SET {
         if let Some(ttl) = self.ttl {
             bytes.put_u32(ttl);
         }
-        bytes
+        Ok(())
     }
 }

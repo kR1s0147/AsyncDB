@@ -1,11 +1,14 @@
-use bytes::{Bytes, BytesMut};
+use bytes::{BufMut, Bytes, BytesMut};
 
 mod codec;
 mod delete;
+mod error;
 mod get;
 mod header;
 mod set;
 mod update;
+
+use error::Error;
 
 pub enum Command {
     SET(set::SET),
@@ -28,6 +31,15 @@ impl Command {
                 std::io::ErrorKind::InvalidData,
                 "Unknown command",
             ))),
+        }
+    }
+
+    pub fn write(src: &mut BytesMut) -> Result<(), Error> {
+        match self {
+            Command::SET(cmd) => cmd.write(src)?,
+            Command::GET(cmd) => cmd.write(src)?,
+            Command::DELETE(cmd) => cmd.write(src)?,
+            Command::UPDATE(cmd) => cmd.write(src)?,
         }
     }
 }

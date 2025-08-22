@@ -1,5 +1,7 @@
 use std::slice::Iter;
 
+use crate::protocol::error::Error;
+
 pub struct Header {
     // Command Type (SET, GET, etc.)
     pub command: u8,
@@ -26,7 +28,7 @@ impl Header {
     /// Reads a header from the provided byte slice.
     pub fn parse_header(mut src: Iter<u8>) -> Result<Header, Error> {
         if src.len() < 3 {
-            return Err(Error::new("Not enough data to read header"));
+            return Error::InsufficientBytes(3 - src.len() as u64);
         }
         let command = src.next().unwrap();
         let mut len: u16 = 0;
@@ -39,7 +41,7 @@ impl Header {
         }
 
         if src.len() < (len as usize + 3) {
-            return Err(Error::new("Not enough data to read the full header"));
+            return Error::InsufficientBytes((len + 3) as u64 - src.len() as u64);
         }
 
         Ok(Self::new(*command, len))
