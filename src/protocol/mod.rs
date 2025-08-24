@@ -1,4 +1,4 @@
-use bytes::{BufMut, Bytes, BytesMut};
+use bytes::{Buf, BufMut, Bytes, BytesMut};
 
 mod codec;
 mod delete;
@@ -23,10 +23,10 @@ impl Command {
         let header = header::Header::parse_header(&mut iter)?;
 
         match header.command {
-            0 => Ok(Command::SET(set::SET::read(header, bytes)?)),
-            1 => Ok(Command::GET(get::GET::read(header, bytes)?)),
-            2 => Ok(Command::DELETE(delete::DELETE::read(header, bytes)?)),
-            3 => Ok(Command::UPDATE(update::UPDATE::read(header, bytes)?)),
+            0 => Ok(Command::SET(set::SET::read(header, bytes)))?,
+            1 => Ok(Command::GET(get::GET::read(header, bytes)))?,
+            2 => Ok(Command::DELETE(delete::DELETE::read(header, bytes)))?,
+            3 => Ok(Command::UPDATE(update::UPDATE::read(header, bytes)))?,
             _ => Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
                 "Unknown command",

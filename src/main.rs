@@ -1,5 +1,5 @@
-mod eventloop;
 mod protocol;
+mod server;
 
 use protocol::*;
 
